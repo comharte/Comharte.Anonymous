@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<InternalsVisibleTo Include="Comharte.Anonymous.Application" />
+		<InternalsVisibleTo Include="Comharte.Anonymous.Host" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="Comharte.Models" Version="1.0.0" />
+	</ItemGroup>
+
+</Project>

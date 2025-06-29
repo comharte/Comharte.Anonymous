@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>..\..</DockerfileContext>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Comharte.Host" Version="1.0.0" />
+    <PackageReference Include="Comharte.Models" Version="1.0.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Comharte.Anonymous.Application\Comharte.Anonymous.Application.csproj" />
+    <ProjectReference Include="..\Comharte.Anonymous.Domain\Comharte.Anonymous.Domain.csproj" />
+    <ProjectReference Include="..\Comharte.Anonymous.Infrastructure\Comharte.Anonymous.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,72 @@
+# Overview
+- This is Comharte.Standard based application 
+- Main use of service is to extend Azure B2C / External Identity user store with custom roles and permissions. 
+- Allows to create organizations with members having diffrent role
+- Authorization server integration allows to embed any collected information into Bearer access token signed and issued by Azure services.
+
+# Installation
+
+## Standard 
+- Comharte.Standard supports IaC deployment using Terraform. Please follow instruction from Comharte.Standard repository to deploy the base infrastructure.
+- Prerequisites:
+	- Comharte.Standard global environment set up 
+- All relevant files you can find in 'Comharte.Anonymous.Infrastructure.Azure' project.
+- Provide your global remote state information in 'providers.tf' (# prefixed keys)
+- Create 'terraform.tfvars' file with variables listed in 'variables.tf' file.
+- Run terraform 
+
+## Manual
+- Create service principal. You can create seperate SP for worker (background service) and server (api) mode or use single SP for both.
+- Create azure service bus namespace with two topics:
+  - GlobalEvent
+  - InternalProcessing
+- Create MS SQL database with owner role assigned to service principal and deploy Database project
+- Create application insights instance
+- Create key vault with read access for service principal
+- Load following variables to key vault:
+	- AzureServiceBus--Connections--Processor-GlobalEvent
+		- format: TargetType=Processor;Host=YOUR_NAMESPACE_HOST_HERE;Queue=YOUR_QUEUE_NAME_HERE;Subscription=$clientId;Disabled=false
+		- sample value: TargetType=Processor;Host=https://comharte-01-asb.servicebus.windows.net:443/;Queue=anonymous-sbt-globalEvents.dev.comharte.com;Subscription=$clientId;Disabled=false
+	- AzureServiceBus--Connections--Processor-InternalProcessing
+		- format: TargetType=Processor;Host=YOUR_NAMESPACE_HOST_HERE;Queue=YOUR_QUEUE_NAME_HERE;Subscription=$clientId;Disabled=false
+		- sample value: TargetType=Processor;Host=https://comharte-01-asb.servicebus.windows.net:443/;Queue=anonymous-sbt-internalProcessing.dev.comharte.com;Subscription=$clientId;Disabled=false
+	- AzureServiceBus--Connections--Sender-GlobalEvent
+		- format: TargetType=Sender;Host=YOUR_NAMESPACE_HOST_HERE;Queue=YOUR_QUEUE_NAME_HERE;Disabled=false
+		- sample value: TargetType=Sender;Host=https://comharte-01-asb.servicebus.windows.net:443/;Queue=anonymous-sbt-globalEvents.dev.comharte.com;Disabled=false
+	- AzureServiceBus--Connections--Sender-InternalProcessing
+		- format: TargetType=Sender;Host=YOUR_NAMESPACE_HOST_HERE;Queue=YOUR_QUEUE_NAME_HERE;Disabled=false
+		- sample value: TargetType=Sender;Host=https://comharte-01-asb.servicebus.windows.net:443/;Queue=anonymous-sbt-internalProcessing.dev.comharte.com;Disabled=false
+	- Infrastructure--Environment
+		- sample value: dev
+	- KeyVaultConfiguration:
+		- required value: system_scope
+	- Logger--MinimumLevel--Global
+		- allowed values: https://learn.microsoft.com/en-us/javascript/api/@microsoft/signalr/loglevel?view=signalr-js-latest
+	- Logger--MinimumLevel--Override--Microsoft
+		- allowed values: https://learn.microsoft.com/en-us/javascript/api/@microsoft/signalr/loglevel?view=signalr-js-latest
+	- Logger--MinimumLevel--Override--System
+		- allowed values: https://learn.microsoft.com/en-us/javascript/api/@microsoft/signalr/loglevel?view=signalr-js-latest
+	- Logger--Sinks--ApplicationInsights--Enabled
+		- allowed values: true, false
+	- Logger--Sinks--ApplicationInsights--InstrumentationKey
+		- required value: instumentation key for created application insights instance
+	- Logger--Sinks--ApplicationInsights--MinimumLevel
+		- allowed values: https://learn.microsoft.com/en-us/javascript/api/@microsoft/signalr/loglevel?view=signalr-js-latest
+	- Logger--Sinks--Console--Enabled
+		- allowed values: true, false
+	- Logger--Sinks--Console--MinimumLevel
+		- allowed values: https://learn.microsoft.com/en-us/javascript/api/@microsoft/signalr/loglevel?view=signalr-js-latest
+	- SERVER-ConnectionStrings--Application
+		- required value: connection string to MS SQL database
+	- SERVER-Logger--Enrich--Properties--Application
+		- required value: application name, used for logging and telemetry
+	- SERVER-Security--Authentication--Default--Audience
+		- required value: audience for authentication - use service principal registration details
+	- SERVER-Security--Authentication--Default--Authority
+		- required value: authority for authentication - use service principal registration details 
+	- SERVER-Security--GlobalRoles--Basic
+		- required value: Basic
+	- SERVER-Security--GlobalRoles--Read
+		- required value: Read.All
+	- SERVER-Security--GlobalRoles--Write
+		- required value: Write.All
